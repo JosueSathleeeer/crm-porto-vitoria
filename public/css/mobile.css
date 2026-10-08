@@ -1,0 +1,42 @@
+/* Porto Vitória · ajustes para celular (aplicado ao sistema completo) */
+.pvm-bar,.pvm-drawer,.pvm-veil{display:none}
+@media (max-width:760px){
+  html,body{overflow:auto!important}
+  .app{position:static!important;display:block!important;height:auto!important}
+  .side{display:none!important}
+  .main{height:auto!important;min-height:100vh}
+  .topbar{position:sticky!important;top:0;padding:8px 10px!important;gap:6px!important}
+  .topbar .crumb{width:100%;font-size:15px!important}
+  .topbar .flt{flex:1 1 46%;min-width:0}.topbar .flt select{width:100%;min-width:0}
+  .topbar .btn{font-size:12px!important;padding:6px 9px!important}
+  .content{overflow:visible!important;padding:10px 10px 90px!important}
+  .rhead{padding:10px!important;gap:8px!important;flex-wrap:wrap}
+  .rhead .slogan,.rhead .meta{display:none!important}
+  .rhead .logo{width:44px!important;height:48px!important}
+  .rhead .t1{font-size:20px!important}.rhead .t2{font-size:11px!important}.rhead .t3{font-size:10px!important}
+  .rhead .center{width:100%;order:3}.rhead .bigtitle{font-size:22px!important}
+  .rtabs,.subtabs{overflow-x:auto;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch}.rtabs button,.subtabs button{flex:none;white-space:nowrap}
+  .kpis,.kpis.k4,.kpis.k5,.kpis.k8{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+  .kpi{padding:10px!important;gap:8px!important}.kpi svg{width:24px!important;height:24px!important;flex-basis:24px!important}.kpi .v{font-size:20px!important}.kpi .k{font-size:11px!important}
+  .row,.row.r2,.row.r3,.row.r21,.row.r12,.row.r31b,.cfg-grid{grid-template-columns:1fr!important}
+  .modal-bg{padding:0!important}.modal{max-width:100%!important;width:100%!important;min-height:100vh;border-radius:0!important}
+  .form{grid-template-columns:1fr!important}.form .f{grid-column:auto!important}
+  .mcgrid,.mweek{grid-template-columns:repeat(7,minmax(210px,1fr))!important;overflow-x:auto}
+  .mcsum{grid-template-columns:1fr 1fr!important}
+  .calg .cald{min-height:62px!important;padding:3px!important}.cale{font-size:9.5px!important}
+  .bstatus{grid-template-columns:1fr 1fr!important}
+  .agrp{grid-template-columns:1fr!important}
+  .falert{grid-template-columns:1fr!important}
+  .ftop{grid-template-columns:1fr!important}
+  .acards,.cards{grid-template-columns:1fr!important}
+  table.t{font-size:12px}
+  .pvm-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:60;background:linear-gradient(180deg,#0d4f2b,#062a17);border-top:3px solid #f2b81b;padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  .pvm-bar button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:none;color:#cfe6d6;font:700 10.5px Barlow,Arial,sans-serif;padding:6px 2px;border-radius:10px}
+  .pvm-bar button svg{width:22px;height:22px}.pvm-bar button.on{color:#fff;background:rgba(255,255,255,.12)}
+  .pvm-veil.on{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70}
+  .pvm-drawer.on{display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;width:min(86vw,340px);background:#062a17;color:#fff;z-index:80;overflow:auto;padding:calc(12px + env(safe-area-inset-top)) 10px 20px}
+  .pvm-drawer .hd{display:flex;align-items:center;gap:10px;padding:4px 6px 12px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:6px}.pvm-drawer .hd img{width:40px}.pvm-drawer .hd b{display:block;font:800 17px Barlow,Arial}.pvm-drawer .hd small{opacity:.75;font-size:12px}
+  .pvm-drawer details{border-bottom:1px solid rgba(255,255,255,.08)}.pvm-drawer summary,.pvm-drawer .it{display:flex;align-items:center;gap:10px;padding:11px 8px;font:700 15px Barlow,Arial;cursor:pointer;list-style:none;color:#fff;background:none;border:0;width:100%;text-align:left}
+  .pvm-drawer summary::-webkit-details-marker{display:none}.pvm-drawer summary svg,.pvm-drawer .it svg{width:20px;height:20px;flex:none}
+  .pvm-drawer .sb{display:block;width:100%;text-align:left;border:0;background:none;color:#cfe6d6;font:600 14px Barlow,Arial;padding:9px 8px 9px 40px;border-radius:8px}.pvm-drawer .sb:active,.pvm-drawer .sb.on{background:rgba(255,255,255,.1);color:#fff}
+}

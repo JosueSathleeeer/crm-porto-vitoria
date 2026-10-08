@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d4f2b">
+<title>Minha área · Porto Vitória</title>
+<link rel="icon" href="/img/favicon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/portal.css">
+</head>
+<body>
+<header class="top"><img src="/img/escudo.png" alt=""><div><b id="nome">Minha área</b><span id="info">Porto Vitória · Performance Hub</span></div><a href="/admin#senha">Senha</a><button id="sair">Sair</button></header>
+<main class="wrap">
+  <div class="tiles">
+    <a class="tile" id="tBe"><span class="ic">🌅</span><b>Bem-estar de hoje</b><small>Responda antes do treino: sono, fadiga, recuperação, estresse, humor, dor e urina.</small><span class="st" id="sBe">Pendente</span></a>
+    <a class="tile" id="tPse"><span class="ic">💪</span><b>PSE do treino</b><small>Cerca de 30 minutos depois do treino ou do jogo: quanto foi intenso (0 a 10) e quantos minutos.</small><span class="st" id="sPse">Pendente</span></a>
+  </div>
+  <section class="box"><h3>Minhas respostas · últimos 14 dias</h3><div class="in scroll"><table><thead><tr><th>Data</th><th>Bem-estar</th><th>Dor</th><th>PSE</th><th>Minutos</th><th>Carga (UA)</th></tr></thead><tbody id="hist"><tr><td colspan="6" class="muted">Carregando…</td></tr></tbody></table></div></section>
+  <section class="box"><h3>Treinos de hoje</h3><div class="in" id="hoje"><span class="muted">Carregando…</span></div></section>
+</main>
+<script src="/js/atleta-area.js"></script>
+</body>
+</html>

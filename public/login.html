@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d4f2b">
+<title>Entrar · Porto Vitória</title>
+<link rel="icon" href="/img/favicon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/css/portal.css">
+</head>
+<body class="pv-auth">
+<div class="splash" id="splash"><img src="/img/escudo.png" alt=""><h1>PORTO VITÓRIA</h1><p>Performance Hub</p><div class="bar"><i></i></div><small>Carregando…</small></div>
+<form class="card" id="f" novalidate hidden>
+  <img src="/img/escudo.png" alt="Escudo do Porto Vitória">
+  <h2>PORTO VITÓRIA</h2>
+  <p class="sub">Performance Hub · Departamento de Futebol de Base</p>
+  <label>Usuário<input id="u" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
+  <label>Senha<span class="pw"><input id="s" type="password" autocomplete="current-password" required><button type="button" id="ver" aria-label="Mostrar senha">👁</button></span></label>
+  <p class="erro" id="e" role="alert"></p>
+  <button class="btn" type="submit" id="b">Entrar</button>
+  <small class="foot">Atletas, comissão e departamentos usam o mesmo acesso.<br>Esqueceu a senha? Fale com o administrador.</small>
+</form>
+<script src="/js/login.js"></script>
+</body>
+</html>
