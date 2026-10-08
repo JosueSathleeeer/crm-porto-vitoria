@@ -502,7 +502,12 @@ app.post('/api/admin/backup', autenticar, exigir('admin'), (req, res) => {
 });
 
 /* ---- páginas estáticas / rotas ---- */
-const pagina = f => (req, res) => res.sendFile(path.join(PUB, f));
+const pagina = f => (req, res) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(PUB, f));
+};
 app.get('/login', pagina('login.html'));
 app.get('/', (req, res) => {
   const t = req.cookies[COOKIE];
@@ -517,7 +522,15 @@ app.get('/app', autenticar, (req, res, next) => (req.u.papel === 'atleta' ? res.
 app.get('/atleta', autenticar, pagina('atleta.html'));
 app.get('/formulario', autenticar, pagina('app.html'));
 app.get('/admin', autenticar, pagina('admin.html'));
-app.use(express.static(PUB, { index: false, extensions: ['html'] }));
+app.use(express.static(PUB, {
+  index: false,
+  extensions: ['html'],
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+}));
 app.use((req, res) => res.status(404).send('Página não encontrada'));
 
 /* ---- inicialização e backup periódico ---- */
