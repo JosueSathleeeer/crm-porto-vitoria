@@ -139,14 +139,31 @@ body:not(.m-on) .nav-fly::-webkit-scrollbar-thumb {
   border-radius: 999px;
 }
 
-/* Alinha os menus dos últimos itens da barra lateral pelo rodapé (abre para cima) */
+/* Alinha os menus dos últimos itens da barra lateral pelo rodapé (abre para cima com espaçamento seguro) */
 body.m-on .side .spacer ~ .nav-item .nav-fly,
 body:not(.m-on) .side .spacer ~ .nav-item .nav-fly,
 .side .spacer ~ .nav-item .nav-fly,
 body.m-on .nav-item:nth-last-child(-n+4) .nav-fly,
 body:not(.m-on) .nav-item:nth-last-child(-n+4) .nav-fly,
-.nav-item:nth-last-child(-n+4) .nav-fly {
+.nav-item:nth-last-child(-n+4) .nav-fly,
+.nav-fly.nav-fly-up,
+.nav-item-up .nav-fly {
   top: auto !important;
-  bottom: 0 !important;
+  bottom: 8px !important;
 }
+
+/* Espaçamento extra de segurança para o botão Sair da conta para nunca encostar no rodapé */
+body.m-on .nav-item:last-child .nav-fly,
+body:not(.m-on) .nav-item:last-child .nav-fly,
+.nav-item:last-child .nav-fly {
+  top: auto !important;
+  bottom: 10px !important;
+}
+
+/* Garante contorno e cantos arredondados sempre nítidos e destacados */
+.nav-fly {
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
 

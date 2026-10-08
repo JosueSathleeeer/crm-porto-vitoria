@@ -302,12 +302,13 @@ function go(v, arg) { S.view = v; if (arg !== undefined) UI.histAtleta = arg; tr
 function renderSide() {
   const item = n => {
     const active = S.view === n.k || (n.sub && n.sub.some(s => s[0] === S.view));
-    return `<div class="nav-item"><button class="nav-btn ${active ? 'active' : ''}" data-go="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
-    <div class="nav-fly"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-go="${s[0]}" class="${S.view === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-go="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
+    const isUp = n.up || n.k === 'config';
+    return `<div class="nav-item ${isUp ? 'nav-item-up' : ''}"><button class="nav-btn ${active ? 'active' : ''}" data-go="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
+    <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-go="${s[0]}" class="${S.view === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-go="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
   };
   $('#side').innerHTML = `<div class="brand"><img src="${LOGO}" alt="Porto Vitória"></div>${NAV.map(item).join('')}<div class="spacer"></div>
-   ${item({ k: 'config', n: 'Configurações', ic: IC.gear })}
-   <div class="nav-item"><button class="nav-btn" data-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly"><div class="fly-title">Tema</div><button data-act="theme">Alternar claro / escuro</button></div></div>`;
+   ${item({ k: 'config', n: 'Configurações', ic: IC.gear, up: true })}
+   <div class="nav-item nav-item-up"><button class="nav-btn" data-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-act="theme">Alternar claro / escuro</button></div></div>`;
 }
 function renderTop() {
   const [t, s] = TITLES[S.view] || ['', ''];
@@ -6491,12 +6492,13 @@ const UNI = window.UNI = {
     const cur = UNI.view();
     const item = n => {
       const active = cur === n.k || (n.sub && n.sub.some(s => s[0] === cur)) || (n.k === 'config' && cur.startsWith('config'));
-      return `<div class="nav-item"><button class="nav-btn ${active ? 'active' : ''}" data-nav="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
-      <div class="nav-fly"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-nav="${s[0]}" class="${cur === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-nav="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
+      const isUp = n.up || n.k === 'config';
+      return `<div class="nav-item ${isUp ? 'nav-item-up' : ''}"><button class="nav-btn ${active ? 'active' : ''}" data-nav="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
+      <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-nav="${s[0]}" class="${cur === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-nav="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
     };
     $('#side').innerHTML = `<div class="brand"><img src="${LOGO}" alt="Porto Vitória"></div>${NAV.map(item).join('')}<div class="spacer"></div>
-     ${item({ k: 'config', n: 'Configurações', ic: IC.gear, sub: [['config', 'Todos os módulos'], ...CFG_TABS] })}
-     <div class="nav-item"><button class="nav-btn" data-nav-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly"><div class="fly-title">Tema</div><button data-nav-act="theme">Alternar claro / escuro</button></div></div>`;
+     ${item({ k: 'config', n: 'Configurações', ic: IC.gear, up: true, sub: [['config', 'Todos os módulos'], ...CFG_TABS] })}
+     <div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-nav-act="theme">Alternar claro / escuro</button></div></div>`;
   },
   afterMinRender() {
     const v = MIN.S.view; const key = v === 'config' ? 'config-min' : (MIN_BACK[v] || 'm-' + v);
@@ -6639,7 +6641,7 @@ window.addEventListener('resize', () => requestAnimationFrame(rbFit));
 })();
 // botão "Sair" no menu lateral
 const _rsLogin = UNI.renderSide;
-UNI.renderSide = function () { _rsLogin(); const side = document.getElementById('side'); if (!side || side.querySelector('[data-nav-act="logout"]')) return; const th = side.querySelector('[data-nav-act="theme"]'); const item = th ? th.closest('.nav-item') : null; const u = window.usuarioAtualPV && usuarioAtualPV(); const html = `<div class="nav-item"><button class="nav-btn" data-nav-act="logout" aria-label="Sair">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}</button><div class="nav-fly"><div class="fly-title">${u ? esc(u.nome) : 'Conta'}</div><button data-nav-act="logout">Sair do sistema</button></div></div>`; if (item) item.insertAdjacentHTML('afterend', html); else side.insertAdjacentHTML('beforeend', html); };
+UNI.renderSide = function () { _rsLogin(); const side = document.getElementById('side'); if (!side || side.querySelector('[data-nav-act="logout"]')) return; const th = side.querySelector('[data-nav-act="theme"]'); const item = th ? th.closest('.nav-item') : null; const u = window.usuarioAtualPV && usuarioAtualPV(); const html = `<div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="logout" aria-label="Sair">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:10px!important;"><div class="fly-title">${u ? esc(u.nome) : 'Conta'}</div><button data-nav-act="logout">Sair do sistema</button></div></div>`; if (item) item.insertAdjacentHTML('afterend', html); else side.insertAdjacentHTML('beforeend', html); };
 renderSide = UNI.renderSide;
 document.addEventListener('click', e => { if (e.target.closest('[data-nav-act="logout"]')) { e.stopPropagation(); confirmar('Sair do sistema?', () => sairPV()); } }, true);
 // gestão de usuários em Configurações → Geral
