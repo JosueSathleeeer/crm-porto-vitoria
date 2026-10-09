@@ -304,11 +304,11 @@ function renderSide() {
     const active = S.view === n.k || (n.sub && n.sub.some(s => s[0] === S.view));
     const isUp = n.up || n.k === 'config';
     return `<div class="nav-item ${isUp ? 'nav-item-up' : ''}"><button class="nav-btn ${active ? 'active' : ''}" data-go="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
-    <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-go="${s[0]}" class="${S.view === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-go="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
+    <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'position:fixed!important;left:62px!important;top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-go="${s[0]}" class="${S.view === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-go="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
   };
   $('#side').innerHTML = `<div class="brand"><img src="${LOGO}" alt="Porto Vitória"></div>${NAV.map(item).join('')}<div class="spacer"></div>
    ${item({ k: 'config', n: 'Configurações', ic: IC.gear, up: true })}
-   <div class="nav-item nav-item-up"><button class="nav-btn" data-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-act="theme">Alternar claro / escuro</button></div></div>`;
+   <div class="nav-item nav-item-up"><button class="nav-btn" data-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="position:fixed!important;left:62px!important;top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-act="theme">Alternar claro / escuro</button></div></div>`;
 }
 function renderTop() {
   const [t, s] = TITLES[S.view] || ['', ''];
@@ -4789,6 +4789,8 @@ dmOn('change', e => { if (e.target.id === 'mpSub') { UI.mapaSub = e.target.value
 // abas Cadastro / Mapa / Importar também nas outras telas de Atletas
 const _vAtletasM = vAtletas; vAtletas = function () { return _vAtletasM().replace('<button data-go="importar">Importar dados</button>', '<button data-go="atl-mapa">Mapa de jogadores</button><button data-go="importar">Importar dados</button>'); };
 const _vImportarM = vImportar; vImportar = function () { return _vImportarM().replace('<button data-go="atletas">Cadastro</button>', '<button data-go="atletas">Cadastro</button><button data-go="atl-mapa">Mapa de jogadores</button>'); };
+// PSE registrada no monitoramento (usada no relatório do jogo quando o jogo não tem PSE própria)
+window.__dmPseDia = (aid, d) => { const l = (S.pse || []).filter(r => r.atletaId === aid && r.data === d); if (!l.length) return null; const j = l.find(r => /jogo/i.test(r.sessao || '')) || l[l.length - 1]; return j.pse == null || j.pse === '' ? null : +j.pse; };
 
 window.MIN=(function(){
 
@@ -5033,7 +5035,7 @@ function ring(p,size=56){
 const dispColor=p=>p>=70?'linear-gradient(90deg,#2a9d4b,#46c06a)':p>=50?'linear-gradient(90deg,#f2b51b,#f8cd3c)':p>=35?'linear-gradient(90deg,#f0782b,#f59a48)':'linear-gradient(90deg,#e3342b,#ef5a4f)';
 function emptyReport(msg){
   return `<div class="empty"><h3>${msg||'Ainda não há jogos para este filtro'}</h3><p>Cadastre atletas e jogos para gerar os relatórios de minutagem, ou mude o filtro de categoria, competição e ano no topo.</p>
-  <div class="acts">${S.canWrite?`<button class="btn pri" data-go="importar">${IC.up} Importar planilha de minutagem</button><button class="btn" data-go="jogos-lista">${IC.plus} Cadastrar jogo</button><button class="btn" data-go="atletas">${IC.users} Cadastrar atletas</button>${!S.atletas.length&&!S.jogos.length?`<button class="btn gold" data-act="demo">Carregar dados de exemplo</button>`:''}`:''}</div></div>`;
+  <div class="acts">${S.canWrite?`<button class="btn pri" data-go="importar">${IC.up} Importar planilha de minutagem</button><button class="btn" data-act="novoJogo">${IC.plus} Cadastrar jogo</button><button class="btn" data-go="atletas">${IC.users} Cadastrar atletas</button>${!S.atletas.length&&!S.jogos.length?`<button class="btn gold" data-act="demo">Carregar dados de exemplo</button>`:''}`:''}</div></div>`;
 }
 
 /* ================= 1. DASHBOARD (imagem 1) ================= */
@@ -5381,7 +5383,7 @@ function gameRow(j,actions){
    <div class="mt">${casa?`<img src="${LOGO}" alt=""><b>Porto Vitória</b>`:`<img src="${j.logoAdv||shieldSVG(j.adversario)}" alt=""><b>${esc(j.adversario)}</b>`}<span class="sc">${casa?(j.golsPro??'-'):(j.golsContra??'-')} x ${casa?(j.golsContra??'-'):(j.golsPro??'-')}</span>${casa?`<b>${esc(j.adversario)}</b><img src="${j.logoAdv||shieldSVG(j.adversario)}" alt="">`:`<b>Porto Vitória</b><img src="${LOGO}" alt="">`}
    <div class="info">${esc(j.competicao)} · ${esc(j.categoria)} · ${esc(j.local||'')}${goals.length?' · ⚽ '+esc(goals.join(', ')):''}${assists.length?` · <span class="ico-boot">${IC.boot}</span> `+esc(assists.join(', ')):''}</div></div>
    ${j.arquivo?'<span title="Relatório PDF arquivado" style="font-size:17px">📎</span>':''}<span class="res ${x}" title="${({V:'Vitória',E:'Empate',D:'Derrota',N:'Sem placar'})[x]}">${x==='N'?'–':x}</span>
-   ${actions?`<div class="acts"><button class="btn sm" data-act="verJogo" data-id="${j.id}">Minutagem</button>${S.canWrite?`<button class="icon-btn" data-act="editJogo" data-id="${j.id}" aria-label="Editar jogo">${IC.edit}</button>`:''}</div>`:'<span></span>'}</div>`;
+   ${actions?`<div class="acts"><button class="btn sm" data-act="verJogo" data-id="${j.id}">Minutagem</button><button class="btn sm" data-act="pdfJogoDet" data-id="${j.id}" title="Gerar relatório do jogo em PDF">${IC.down} PDF</button>${S.canWrite?`<button class="icon-btn" data-act="editJogo" data-id="${j.id}" aria-label="Editar jogo">${IC.edit}</button>`:''}</div>`:'<span></span>'}</div>`;
 }
 
 /* ================= JOGOS · LISTA ================= */
@@ -5396,7 +5398,7 @@ function viewJogosLista(){
 let EJ=null,EJtab='dados',EJslot=-1;
 function modalJogo(id){
   const base=id?JSON.parse(JSON.stringify(S.jogos.find(x=>x.id===id))):{id:uid(),categoria:S.filtro.categoria!=='Todas'?S.filtro.categoria:'Sub-17',competicao:S.filtro.competicao!=='Todas'?S.filtro.competicao:S.config.competicoes[0],data:new Date().toISOString().slice(0,10),hora:'15:00',local:'',mando:'casa',adversario:'',logoAdv:'',golsPro:'',golsContra:'',duracao:'',formacao:'4-2-3-1',relacionados:[],escalacao:[],motivos:{},obs:''};
-  base.relacionados=base.relacionados||[];base.escalacao=base.escalacao||[];base.motivos=base.motivos||{};
+  base.relacionados=base.relacionados||[];base.escalacao=base.escalacao||[];base.motivos=base.motivos||{};base.eventos=base.eventos||[];
   EJ=base;EJtab='dados';EJslot=-1;EJ._isNew=!id;
   openModal(`<div class="modal xl"><div class="mh"><h3>${id?'Editar jogo':'Cadastrar jogo'}</h3><button class="icon-btn" data-close aria-label="Fechar">${IC.x}</button></div><div class="mb" id="ejBody"></div>
   <div class="mf">${id?`<button class="btn danger" id="ejDel">${IC.trash} Excluir jogo</button>`:''}<span class="msg" id="ejMsg"></span><button class="btn" data-close>Cancelar</button><button class="btn pri" id="ejSave">Salvar jogo</button></div></div>`);
@@ -5409,7 +5411,7 @@ function syncEJ(){ // lê campos da aba dados
   if($('#jAdv')){Object.assign(EJ,{categoria:g('jCat'),competicao:g('jComp'),data:g('jData'),hora:g('jHora'),local:g('jLocal'),mando:g('jMando'),adversario:g('jAdv').trim(),golsPro:g('jGP'),golsContra:g('jGC'),duracao:g('jDur'),obs:g('jObs')});}
 }
 function renderEJ(){
-  const tabs=`<div class="tabs" role="tablist">${[['dados','Dados do jogo'],['rel','Relacionados e estatísticas'],['esc','Escalação']].map(([k,l])=>`<button role="tab" class="${EJtab===k?'on':''}" data-ejtab="${k}">${l}</button>`).join('')}</div>`;
+  const tabs=`<div class="tabs" role="tablist">${[['dados','Dados do jogo'],['rel','Relacionados e estatísticas'],['ev','Eventos (minuto a minuto)'],['esc','Escalação']].map(([k,l])=>`<button role="tab" class="${EJtab===k?'on':''}" data-ejtab="${k}">${l}</button>`).join('')}</div>`;
   let body='';
   if(EJtab==='dados'){
     const opts=(arr,v)=>arr.map(x=>`<option ${x===v?'selected':''}>${esc(x)}</option>`).join('');
@@ -5436,12 +5438,27 @@ function renderEJ(){
      <span style="margin-left:auto;padding:0;border:0;background:none;display:flex;gap:6px;flex-wrap:wrap"><button class="btn sm" data-act="titMin">Titulares = ${d} min</button><button class="btn sm" data-act="relAll">Limpar relacionados</button></span></div>
      ${nT>11?'<div style="color:var(--red);font-weight:600;margin-bottom:8px">Há mais de 11 titulares marcados.</div>':''}
      ${!ats.length?`<div class="empty"><h3>Nenhum atleta na categoria ${esc(EJ.categoria)}</h3><p>Cadastre os atletas dessa categoria para montar os relacionados.</p></div>`:
-     `<div class="tbl-wrap"><table class="t reltbl"><thead><tr><th>Atleta</th><th>Pos</th><th>Situação</th><th>Min</th><th>Gols</th><th>Assist.</th><th>Amar.</th><th>Verm.</th><th>Motivo (não relacionado)</th></tr></thead><tbody>
+     `<div class="tbl-wrap"><table class="t reltbl"><thead><tr><th>Atleta</th><th>Pos</th><th>Situação</th><th>Min</th><th>Gols</th><th>Assist.</th><th>Amar.</th><th>Verm.</th><th title="Percepção subjetiva de esforço (0 a 10)">PSE</th><th>Motivo (não relacionado)</th></tr></thead><tbody>
      ${ats.map(a=>{const r=map[a.id];const st=r?r.status:'';return `<tr class="${st||'nr'}" data-aid="${a.id}"><td class="l"><div class="athcell"><img class="ava" src="${fotoDe(a)}" alt="">${esc(a.nome)}${subTag(a)}</div></td><td><span class="ptag" style="background:${PC2[a.posicao]}">${a.posicao}</span></td>
       <td><select data-f="status" aria-label="Situação de ${esc(a.nome)}"><option value="" ${!st?'selected':''}>Não relacionado</option><option value="T" ${st==='T'?'selected':''}>Titular</option><option value="R" ${st==='R'?'selected':''}>Reserva</option></select></td>
-      ${['min','gols','assist','ca','cv'].map(k=>`<td><input type="number" min="0" ${k==='min'?`max="${d+30}"`:k==='ca'?'max="2"':k==='cv'?'max="1"':''} data-f="${k}" value="${r?esc(r[k]??''):''}" ${r?'':'disabled'} aria-label="${k} ${esc(a.nome)}"></td>`).join('')}
+      ${['min','gols','assist','ca','cv','pse'].map(k=>`<td><input type="number" min="0" ${k==='min'?`max="${d+30}"`:k==='ca'?'max="2"':k==='cv'?'max="1"':k==='pse'?`max="10" placeholder="${r&&psePadrao(a.id,EJ.data)!=null?psePadrao(a.id,EJ.data):''}"`:''} data-f="${k}" value="${r?esc(r[k]??''):''}" ${r?'':'disabled'} aria-label="${k} ${esc(a.nome)}"></td>`).join('')}
       <td>${r?'<span class="muted">—</span>':`<select data-f="motivo" aria-label="Motivo">${MOTIVOS.map(m=>`<option ${(EJ.motivos[a.id]||'Opção técnica')===m?'selected':''}>${m}</option>`).join('')}</select>`}</td></tr>`;}).join('')}</tbody></table></div>
-     <p class="muted" style="font-size:12.5px;margin-top:8px">Reserva com 0 minutos = ficou no banco sem entrar. Quem não for marcado entra automaticamente como não relacionado.</p>`}`;
+     <p class="muted" style="font-size:12.5px;margin-top:8px">Reserva com 0 minutos = ficou no banco sem entrar. Quem não for marcado entra automaticamente como não relacionado. PSE (0 a 10) vazia usa a PSE lançada no monitoramento na data do jogo (aparece em cinza).</p>`}`;
+  } else if(EJtab==='ev'){
+    const rel=EJ.relacionados.map(r=>S.atletas.find(a=>a.id===r.atletaId)).filter(Boolean).sort((a,b)=>POS.indexOf(a.posicao)-POS.indexOf(b.posicao)||a.nome.localeCompare(b.nome));
+    const ev=EJ.eventos||[];const d=Number(EJ.duracao)||S.config.duracao?.[EJ.categoria]||90;
+    const cont=t=>ev.filter(e=>e.tipo===t).length,soma=k=>EJ.relacionados.reduce((s,r)=>s+(+r[k]||0),0);
+    const dif=Object.entries(EV_TIPOS).filter(([t,o])=>cont(t)!==soma(o.k)).map(([t,o])=>`${o.n}: ${cont(t)} evento(s) x ${soma(o.k)} na aba Relacionados`);
+    body=`<p class="muted" style="font-size:13px;margin:0 0 10px">Lance o minuto de cada gol, assistência e cartão. Esses eventos formam a linha do tempo e a tabela de eventos do relatório em PDF.</p>
+     ${!rel.length?`<div class="empty"><h3>Nenhum atleta relacionado</h3><p>Marque os relacionados na aba <b>Relacionados e estatísticas</b> primeiro.</p></div>`:`
+     <div class="tbl-wrap"><table class="t evtbl"><thead><tr><th style="width:90px">Minuto</th><th>Atleta</th><th>Tipo</th><th>Detalhe (opcional)</th><th></th></tr></thead><tbody>
+     ${ev.map((e,i)=>`<tr data-ev="${i}"><td><input type="number" min="0" max="${d+30}" data-e="min" value="${esc(e.min??'')}" aria-label="Minuto"></td>
+       <td><select data-e="atletaId" aria-label="Atleta">${rel.map(a=>`<option value="${a.id}" ${a.id===e.atletaId?'selected':''}>${esc(a.nome)} (${a.posicao})</option>`).join('')}</select></td>
+       <td><select data-e="tipo" aria-label="Tipo">${Object.entries(EV_TIPOS).map(([t,o])=>`<option value="${t}" ${t===e.tipo?'selected':''}>${o.n}</option>`).join('')}</select></td>
+       <td><input data-e="det" value="${esc(e.det||'')}" placeholder="${esc(EV_TIPOS[e.tipo]?.det||'')}" aria-label="Detalhe"></td>
+       <td><button class="icon-btn" data-evrm="${i}" type="button" aria-label="Remover evento">${IC.trash}</button></td></tr>`).join('')||`<tr><td colspan="5" class="muted" style="padding:14px">Nenhum evento lançado.</td></tr>`}</tbody></table></div>
+     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn sm pri" type="button" data-evadd="1">${IC.plus} Adicionar evento</button><button class="btn sm" type="button" data-evfill="1">Criar a partir das estatísticas</button></div>
+     ${dif.length?`<div style="color:#b26a00;font-size:12.5px;margin-top:10px">Atenção: ${esc(dif.join(' · '))}. A tabela do relatório usa os números da aba Relacionados; a linha do tempo usa estes eventos.</div>`:''}`}`;
   } else {
     const tit=EJ.relacionados.filter(r=>r.status==='T').map(r=>S.atletas.find(a=>a.id===r.atletaId)).filter(Boolean);
     body=`<div class="esc-wrap"><div><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap"><label class="f" style="flex-direction:row;align-items:center;gap:8px"><span style="font-weight:700;font-size:12px;color:var(--ink2)">FORMAÇÃO</span><select id="jForm" style="border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:var(--card2)">${Object.keys(FORMACOES).map(f=>`<option ${f===EJ.formacao?'selected':''}>${f}</option>`).join('')}</select></label><button class="btn sm" data-act="autoEsc">Posicionar automaticamente</button><button class="btn sm" data-act="clrEsc">Limpar campo</button></div>
@@ -5466,7 +5483,19 @@ function bindEJ(){
         else{const d=Number(EJ.duracao)||S.config.duracao?.[EJ.categoria]||90;EJ.relacionados.push({atletaId:aid,status:v,min:v==='T'?d:0,gols:0,assist:0,ca:0,cv:0});delete EJ.motivos[aid];}
         if(e.type==='change')renderEJ();return;}
       if(f==='motivo'){EJ.motivos[aid]=el.value;return;}
-      const r=EJ.relacionados.find(x=>x.atletaId===aid);if(r)r[f]=el.value===''?0:Number(el.value);};});});
+      const r=EJ.relacionados.find(x=>x.atletaId===aid);if(!r)return;
+      if(f==='pse'){if(el.value==='')delete r.pse;else r.pse=Math.max(0,Math.min(10,Number(el.value)));return;}
+      r[f]=el.value===''?0:Number(el.value);};});});
+  document.querySelectorAll('.evtbl tr[data-ev]').forEach(tr=>{const e=EJ.eventos[+tr.dataset.ev];
+    tr.querySelectorAll('[data-e]').forEach(el=>{el.onchange=el.oninput=()=>{const k=el.dataset.e;
+      if(k==='min')e.min=el.value===''?null:Number(el.value);else e[k]=el.value;
+      if(k==='tipo'){const det=tr.querySelector('[data-e="det"]');if(det)det.placeholder=EV_TIPOS[e.tipo]?.det||'';}};});});
+  document.querySelectorAll('[data-evrm]').forEach(b=>b.onclick=()=>{EJ.eventos.splice(+b.dataset.evrm,1);renderEJ();});
+  const ea=$('[data-evadd]');if(ea)ea.onclick=()=>{const l=EJ.eventos,last=l[l.length-1];const r0=EJ.relacionados.find(r=>r.status==='T')||EJ.relacionados[0];
+    l.push({min:null,atletaId:last?last.atletaId:r0&&r0.atletaId,tipo:'gol',det:''});renderEJ();const ins=document.querySelectorAll('.evtbl [data-e="min"]');if(ins.length)ins[ins.length-1].focus();};
+  const ef=$('[data-evfill]');if(ef)ef.onclick=()=>{let n=0;
+    EJ.relacionados.forEach(r=>Object.entries(EV_TIPOS).forEach(([t,o])=>{const falta=(+r[o.k]||0)-EJ.eventos.filter(e=>e.atletaId===r.atletaId&&e.tipo===t).length;for(let k=0;k<falta;k++){EJ.eventos.push({min:null,atletaId:r.atletaId,tipo:t,det:''});n++;}}));
+    renderEJ();toast(n?`${n} evento(s) criado(s) — preencha os minutos`:'Os eventos já batem com as estatísticas');};
   document.querySelectorAll('[data-slot]').forEach(s=>{const fn=()=>{const i=+s.dataset.slot;if(EJslot===i){EJ.escalacao[i]=null;EJslot=-1;}else EJslot=i;renderEJ();};s.onclick=fn;s.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fn();}};});
   document.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const id=b.dataset.pick;let i=EJslot;
     if(i<0){const f=FORMACOES[EJ.formacao];const a=S.atletas.find(x=>x.id===id);i=f.findIndex((s,k)=>!EJ.escalacao[k]&&s[2]===a.posicao);if(i<0)i=f.findIndex((s,k)=>!EJ.escalacao[k]);if(i<0)return;}
@@ -5488,6 +5517,8 @@ async function saveEJ(){
   if(!EJ.data){EJtab='dados';renderEJ();msg.textContent='Informe a data do jogo.';return;}
   if(EJ.golsPro!==''&&EJ.golsPro!=null)EJ.golsPro=Number(EJ.golsPro);if(EJ.golsContra!==''&&EJ.golsContra!=null)EJ.golsContra=Number(EJ.golsContra);
   if(EJ.relacionados.some(r=>r.status==='T')&&!EJ.escalacao.some(Boolean))autoEsc();
+  const relIds=new Set(EJ.relacionados.map(r=>r.atletaId));
+  EJ.eventos=(EJ.eventos||[]).filter(e=>relIds.has(e.atletaId)).sort((a,b)=>(a.min??999)-(b.min??999));
   const o={...EJ};delete o._isNew;
   $('#ejSave').disabled=true;
   try{await Store.put('jogos',o);S.jogoSel=o.id;closeModal();render();toast('Jogo salvo');}catch(e){$('#ejSave').disabled=false;}
@@ -5575,6 +5606,9 @@ const saveRep=()=>{try{localStorage.setItem('pv_rep',JSON.stringify(S.rep));}cat
 function capaAno(){if(S.filtro.ano!=='Todos')return S.filtro.ano;const js=jogosFiltrados();return js.length?js[js.length-1].data.slice(0,4):String(new Date().getFullYear());}
 function capaSpec(specs,titulo){
   let t=titulo&&titulo!=='auto'?titulo:null,sub='';
+  const gr=specs.filter(x=>x.t==='jogoRel'||x.t==='jogoEsc');
+  if(gr.length&&gr.length===specs.length){const j=S.jogos.find(x=>x.id===gr[0].id);if(j){const casa=j.mando!=='fora';
+    return {t:'capa',titulo:t||'Minutagem',sub:`${casa?'Porto Vitória':j.adversario} ${casa?(j.golsPro??'-'):(j.golsContra??'-')} x ${casa?(j.golsContra??'-'):(j.golsPro??'-')} ${casa?j.adversario:'Porto Vitória'}`,sub2:[j.categoria,j.competicao,fmtData(j.data)].filter(Boolean).join(' · '),ano:(j.data||'').slice(0,4)||capaAno(),label:'Capa'};}}
   const jogosSp=specs.filter(x=>x.t==='jogo');
   if(!t){if(specs.length&&specs.every(x=>x.t==='jogo'))t=jogosSp.length===1?'Painel do jogo':'Relatório de jogos';else if(specs.length&&specs.every(x=>x.t==='painel'||x.t==='jogo'))t='Painel de jogos';else t='Minutagem';}
   if(jogosSp.length===1&&specs.every(x=>x.t==='jogo')){const j=S.jogos.find(x=>x.id===jogosSp[0].id);if(j){const casa=j.mando!=='fora';sub=`${casa?'Porto Vitória':j.adversario} ${casa?(j.golsPro??'-'):(j.golsContra??'-')} x ${casa?(j.golsContra??'-'):(j.golsPro??'-')} ${casa?j.adversario:'Porto Vitória'} · ${fmtData(j.data)} · ${j.categoria}`;}}
@@ -5585,7 +5619,7 @@ function capaHTML(sp){
   const profs=(S.config.profissionais||[]).filter(p=>p.ativo!==false&&p.nome);
   const tl=sp.titulo.length;const cls=tl>16?'s':tl>11?'m':'';const a=String(sp.ano||'');
   return `<div class="pdfpage capa"><div class="c-top">${esc(S.config.capaTopo||'')}</div>
-   <div class="c-mid"><div class="c-tit ${cls}">${esc(sp.titulo)}</div>${sp.sub?`<div class="c-sub">${esc(sp.sub)}</div>`:''}${profs.length?`<div class="c-prof">${profs.map(p=>esc(p.nome)+(p.cargo?' - '+esc(p.cargo):'')).join('<br>')}</div>`:''}</div>
+   <div class="c-mid"><div class="c-tit ${cls}">${esc(sp.titulo)}</div>${sp.sub?`<div class="c-sub">${esc(sp.sub)}</div>`:''}${sp.sub2?`<div class="c-sub c-sub2">${esc(sp.sub2)}</div>`:''}${profs.length?`<div class="c-prof">${profs.map(p=>esc(p.nome)+(p.cargo?' - '+esc(p.cargo):'')).join('<br>')}</div>`:''}</div>
    <img class="c-logo" src="${LOGO}" alt=""><div class="c-ano">${esc(a.slice(0,2))}<br>${esc(a.slice(2))}</div></div>`;
 }
 function comCapa(specs,titulo){if(!S.rep.capa||!specs.length||specs[0].t==='capa')return specs;return [capaSpec(specs,titulo),...specs];}
@@ -5602,6 +5636,7 @@ function repSpecs(){
 function specHTML(sp,i,n){
   PDFMODE=true;PG={i,n};let h='';
   if(sp.t==='capa'){PDFMODE=false;return capaHTML(sp);}
+  if(sp.t==='jogoRel'||sp.t==='jogoEsc'){try{h=sp.t==='jogoRel'?viewJogoRel(sp.id):viewJogoEsc(sp.id);}finally{PDFMODE=false;}const r=`<div class="pdfpage gr-page"><div class="pg-fit">${h}</div></div>`;PG={i:1,n:1};return r;}
   if(sp.t==='painel'){try{h=viewJogosPainel();}finally{PDFMODE=false;PG={i:1,n:1};}return `<div class="pdfpage tall"><div class="pg-fit"><div class="rwrap">${h}</div></div></div>`;}
   try{h=sp.t==='dash'?viewDashboard({rows:sp.rows}):sp.t==='geral'?viewGeral():sp.t==='jogo'?viewPorJogo(sp.id):sp.t==='pos'?viewPosicao(sp.p,sp.part??0):viewAtleta(sp.id);}
   finally{PDFMODE=false;PG={i:1,n:1};}
@@ -5693,7 +5728,8 @@ async function gerarPDF(specs){
     }
     progress('Finalizando…',1);
     const blob=pdf.output('blob');holder.remove();progressEnd();
-    const nome=`Relatorio-Minutagem-${(S.filtro.categoria||'').replace(/\s/g,'')}-${new Date().toISOString().slice(0,10)}.pdf`;
+    const gj=specs.find(x=>x.t==='jogoRel'||x.t==='jogoEsc');const jg=gj&&S.jogos.find(x=>x.id===gj.id);
+    const nome=jg?`Relatorio-Minutagem-${(jg.categoria||'').replace(/\s/g,'')}-${(jg.adversario||'jogo').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^\w]+/g,'-')}-${jg.data}.pdf`:`Relatorio-Minutagem-${(S.filtro.categoria||'').replace(/\s/g,'')}-${new Date().toISOString().slice(0,10)}.pdf`;
     await saveFile(nome,blob);
   }catch(e){console.error(e);holder.remove();progressEnd();toast('Erro ao gerar o PDF. Tente com menos páginas ou use Imprimir.');}
 }
@@ -5991,6 +6027,81 @@ function substituicoes(j){
     if(best>=0&&bd<=3){usados.add(best);pares.push({m:i.m,entra:i.a,sai:outs[best].a});}else pares.push({m:i.m,entra:i.a,sai:null});});
   outs.forEach((o,k)=>{if(!usados.has(k))pares.push({m:o.m,entra:null,sai:o.a});});
   return pares.sort((x,y)=>x.m-y.m);
+}
+
+/* ================= RELATÓRIO DO JOGO (PDF: painel de minutagem + escalação) ================= */
+const EV_TIPOS={gol:{n:'Gol',k:'gols',det:'Gol registrado'},assist:{n:'Assistência',k:'assist',det:'Assistência registrada'},ca:{n:'Cartão amarelo',k:'ca',det:'Advertência'},cv:{n:'Cartão vermelho',k:'cv',det:'Expulsão'}};
+const psePadrao=(aid,d)=>{try{return window.__dmPseDia?window.__dmPseDia(aid,d):null;}catch(e){return null;}};
+const pseJogo=(r,j)=>r.pse!=null&&r.pse!==''?+r.pse:psePadrao(r.atletaId,j.data);
+const nomeCurto=a=>a.apelido||a.nome.split(/\s+/).slice(0,2).join(' ');
+// eventos com minuto lançados no jogo; sem eles, deriva das estatísticas (sem minuto)
+function eventosJogo(j){
+  const ok=e=>S.atletas.some(a=>a.id===e.atletaId);
+  let ev=(j.eventos||[]).filter(ok);
+  if(!ev.length)(j.relacionados||[]).forEach(r=>Object.entries(EV_TIPOS).forEach(([t,o])=>{for(let k=0;k<(+r[o.k]||0);k++)ev.push({min:null,atletaId:r.atletaId,tipo:t});}));
+  return ev.filter(ok).map(e=>({...e,a:S.atletas.find(a=>a.id===e.atletaId)})).sort((x,y)=>(x.min??999)-(y.min??999)||Object.keys(EV_TIPOS).indexOf(x.tipo)-Object.keys(EV_TIPOS).indexOf(y.tipo));
+}
+const evIco=t=>t==='gol'?`<span class="ev-i gol">${IC.ballF}</span>`:t==='assist'?'<span class="ev-i as">A</span>':`<span class="ev-i ${t}"></span>`;
+function grHead(j,titulo,sub){
+  const casa=j.mando!=='fora';const adv={n:j.adversario,l:j.logoAdv||shieldSVG(j.adversario)},pv={n:'Porto Vitória',l:LOGO};
+  const A=casa?pv:adv,B=casa?adv:pv;const gA=casa?j.golsPro:j.golsContra,gB=casa?j.golsContra:j.golsPro;
+  return `<header class="gr-head"><img class="lg" src="${LOGO}" alt=""><div class="tt"><b>${esc(titulo)}</b><span>${esc(sub)}</span></div>
+   <div class="mt"><div><small>Competição</small><b>${esc(j.competicao||'—')}</b></div><div><small>Data</small><b>${fmtData(j.data)}${j.hora?' · '+esc(j.hora):''}</b></div><div><small>Local</small><b>${esc(j.local||'—')}</b></div></div>
+   <div class="sc"><div class="tm"><img src="${A.l}" alt=""><span>${esc(A.n)}</span></div><div class="pl">${gA??'-'}<em>x</em>${gB??'-'}</div><div class="tm"><span>${esc(B.n)}</span><img src="${B.l}" alt=""></div></div></header>`;
+}
+const grFoot=(j,t)=>`<div class="gr-foot">PORTO VITÓRIA FC · ${esc((j.categoria||'').toUpperCase())} · ${esc(t)} · ${fmtData(j.data)}<span>PÁGINA ${PG.i} DE ${PG.n}</span></div>`;
+function viewJogoRel(id){
+  const j=S.jogos.find(x=>x.id===id);if(!j)return emptyReport('Jogo não encontrado');
+  const d=dur(j);const rel=(j.relacionados||[]).map(r=>({...r,a:S.atletas.find(a=>a.id===r.atletaId),pse:pseJogo(r,j)})).filter(r=>r.a);
+  const ordem=rel.slice().sort((x,y)=>(+y.min||0)-(+x.min||0)||(x.status==='T'?0:1)-(y.status==='T'?0:1)||POS.indexOf(x.a.posicao)-POS.indexOf(y.a.posicao)||x.a.nome.localeCompare(y.a.nome));
+  const usados=rel.filter(r=>+r.min>0).length;const soma=k=>rel.reduce((t,r)=>t+(+r[k]||0),0);
+  const tot=soma('min'),minT=rel.filter(r=>r.status==='T').reduce((t,r)=>t+(+r.min||0),0),minR=tot-minT,nT=rel.filter(r=>r.status==='T').length;
+  const gols=j.golsPro!==''&&j.golsPro!=null?+j.golsPro:soma('gols');
+  const ev=eventosJogo(j);const subs=substituicoes(j);
+  const card=(ic,k,v,s,cls='')=>`<div class="gr-kpi ${cls}"><div class="k">${ic}${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  const kp=`<div class="gr-kpis">${card(IC.kTeam,'Jogadores relacionados',rel.length,usados+' utilizados')}${card(IC.kClock,'Tempo do jogo',d+' min','tempo total da partida')}
+   ${card(evIco('gol'),'Gols',gols,soma('gols')+' por atletas')}${card(evIco('assist'),'Assistências',soma('assist'),'eventos registrados')}
+   ${card(evIco('ca'),'Cartões amarelos',soma('ca'),'eventos registrados','ca')}${card(evIco('cv'),'Cartões vermelhos',soma('cv'),'eventos registrados','cv')}</div>`;
+  const nz=v=>+v?`<b>${+v}</b>`:'<span class="z">0</span>';
+  const tbl=`<div class="gr-card"><div class="gr-ph">${IC.clock} Minutagem e eventos individuais</div><table class="gr-t"><thead><tr><th>#</th><th class="l">Atleta</th><th>Posição</th><th>Min</th><th>Gol</th><th>Assist.</th><th>Amarelo</th><th>Vermelho</th><th>PSE</th></tr></thead><tbody>
+   ${ordem.map((r,i)=>`<tr class="${+r.min>0?'':'off'}"><td>${i+1}</td><td class="l"><span class="nm">${esc(r.a.nome)}</span>${r.status==='T'?'<span class="tt">T</span>':''}</td><td><span class="ptag" style="background:${PC2[r.a.posicao]}">${r.a.posicao}</span></td><td><b>${+r.min||0}</b></td><td>${nz(r.gols)}</td><td>${nz(r.assist)}</td><td>${nz(r.ca)}</td><td>${nz(r.cv)}</td><td>${r.pse!=null&&+r.min>0?`<span class="pse" style="background:${pseCor(r.pse)}">${r.pse}</span>`:'<span class="z">—</span>'}</td></tr>`).join('')}
+   </tbody><tfoot><tr><td></td><td class="l">TOTAL</td><td></td><td>${nf(tot)}</td><td>${soma('gols')}</td><td>${soma('assist')}</td><td>${soma('ca')}</td><td>${soma('cv')}</td><td></td></tr></tfoot></table></div>`;
+  // linha do tempo
+  const comMin=ev.filter(e=>e.min!=null);const fim=Math.max(d,...comMin.map(e=>+e.min));const max=Math.ceil(fim/15)*15||90;
+  const ticks=[];for(let t=0;t<=max;t+=15)ticks.push(t);
+  const ult={up:[],dn:[]};
+  // rótulos alternam acima/abaixo do eixo e sobem de nível quando ficariam sobrepostos
+  const pins=comMin.map((e,i)=>{const x=Math.min(100,+e.min/max*100);const lado=i%2?'dn':'up';let tier=0;while(tier<2&&ult[lado][tier]!=null&&x-ult[lado][tier]<21)tier++;ult[lado][tier]=x;
+    return `<div class="tl-ev ${lado} t${Math.min(tier,2)}" style="left:${x}%"><div class="lb">${evIco(e.tipo)}<span>${esc(nomeCurto(e.a))}</span><b>${+e.min}'</b></div><i></i></div>`;}).join('');
+  const tl=`<div class="gr-card"><div class="gr-ph">${IC.clock} Linha do tempo dos eventos</div><div class="gr-tl">${comMin.length?`<div class="ax">${pins}${ticks.map(t=>`<span class="tk" style="left:${t/max*100}%">${t}'</span>`).join('')}</div>`:`<div class="muted vazio">${ev.length?'Lance o minuto dos eventos em Editar jogo → Eventos para montar a linha do tempo.':'Nenhum evento registrado neste jogo.'}</div>`}</div></div>`;
+  const evT=`<div class="gr-card grow"><div class="gr-ph">${IC.ballF} Eventos do jogo</div>${ev.length?`<table class="gr-t ev"><thead><tr><th>Min</th><th class="l">Atleta</th><th class="l">Tipo</th><th class="l">Detalhe</th></tr></thead><tbody>
+   ${ev.map(e=>`<tr><td><b>${e.min!=null?+e.min+"'":'—'}</b></td><td class="l">${esc(e.a.nome)}</td><td class="l"><span class="tp">${evIco(e.tipo)}${EV_TIPOS[e.tipo]?.n||e.tipo}</span></td><td class="l muted">${esc(e.det||EV_TIPOS[e.tipo]?.det||'')}</td></tr>`).join('')}</tbody></table>`:'<div class="muted vazio">Nenhum gol, assistência ou cartão registrado.</div>'}</div>`;
+  const dist=`<div class="gr-card"><div class="gr-ph">${IC.clock} Distribuição de minutos</div><div class="gr-dist">${donut([{v:minT,c:'#0b4a28'},{v:minR,c:'#2fae57'}],150,26,nf(tot),'minutos')}
+   <div class="legend"><div class="li"><span class="sw round" style="background:#0b4a28"></span><div><b>Titulares</b><span>${nf(minT)} min (${pct(minT,tot)}%)</span></div></div><div class="li"><span class="sw round" style="background:#2fae57"></span><div><b>Reservas / entradas</b><span>${nf(minR)} min (${pct(minR,tot)}%)</span></div></div><div class="muted" style="font-size:13px">${nT} titulares definidos · ${rel.filter(r=>r.status==='R'&&+r.min>0).length} entraram</div></div></div></div>`;
+  const pses=rel.filter(r=>+r.min>0&&r.pse!=null);const hist=Array(11).fill(0);pses.forEach(r=>hist[Math.max(0,Math.min(10,Math.round(r.pse)))]++);const hm=Math.max(1,...hist);
+  const pse=`<div class="gr-card"><div class="gr-ph">${IC.kBars} PSE (esforço percebido)</div>${pses.length?`<div class="gr-pse">${hist.map((n,v)=>`<div class="c"><b>${n||''}</b><i style="height:${n/hm*100}%;background:${pseCor(v)}"></i><span>${v}</span></div>`).join('')}</div>
+   <div class="gr-psem">PSE médio do jogo: <b>${nf(pses.reduce((t,r)=>t+r.pse,0)/pses.length,1)}</b> <span class="muted">· ${pses.length} de ${usados} atletas que jogaram</span></div>`:'<div class="muted vazio">Sem PSE registrada para este jogo. Lance em Editar jogo → Relacionados (coluna PSE) ou no monitoramento.</div>'}</div>`;
+  const band=`<div class="gr-band"><div><b>Observações</b><span>${esc(j.obs||'Sem observações registradas.')}</span></div>
+   <div><b>Substituições</b><span>${subs.length?subs.map(s=>`${s.sai?esc(nomeCurto(s.sai)):'—'} → ${s.entra?esc(nomeCurto(s.entra)):'—'} (${s.m}')`).join(' · '):'Sem substituições.'}</span></div></div>`;
+  return `<div class="gr">${grHead(j,'Relatório de minutagem',`${(j.categoria||'').toUpperCase()} · DESEMPENHO · MINUTAGEM · EVENTOS`)}${kp}
+   <div class="gr-main"><div class="col">${tbl}</div><div class="col">${tl}${evT}</div></div>
+   <div class="gr-row2">${dist}${pse}</div>${band}${grFoot(j,'RELATÓRIO DE MINUTAGEM')}</div>`;
+}
+const pseCor=v=>v>=9?'#c62828':v>=7?'#ef6c00':v>=5?'#f2b81b':v>=3?'#43a047':'#1b8a4a';
+function viewJogoEsc(id){
+  const j=S.jogos.find(x=>x.id===id);if(!j)return emptyReport('Jogo não encontrado');
+  const rel=(j.relacionados||[]).map(r=>({...r,a:S.atletas.find(a=>a.id===r.atletaId)})).filter(r=>r.a);const byA={};rel.forEach(r=>byA[r.a.id]=r);
+  const subs=substituicoes(j);const saiu={},entrou={};subs.forEach(s=>{if(s.sai)saiu[s.sai.id]=s.m;if(s.entra)entrou[s.entra.id]=s.m;});
+  const escl=(j.escalacao||[]).some(Boolean)?j.escalacao:computeEsc(j.formacao,j.relacionados||[]);
+  const f=FORMACOES[j.formacao]||FORMACOES['4-2-3-1'];
+  const bdg=a=>{const r=byA[a.id];if(!r)return '';let b='';for(let k=0;k<Math.min(5,+r.gols||0);k++)b+=evIco('gol');for(let k=0;k<Math.min(3,+r.assist||0);k++)b+=evIco('assist');if(+r.ca)b+=evIco('ca');if(+r.cv)b+=evIco('cv');return b?`<span class="bd">${b}</span>`:'';};
+  const toks=f.map(([x,y,p],i)=>{const a=S.atletas.find(t=>t.id===escl[i]);if(!a)return '';
+    return `<div class="es-tok" style="left:${100-y}%;top:${x}%"><img src="${fotoDe(a)}" alt=""><div class="nm">${esc(nomeCurto(a))}${bdg(a)}</div><small>${a.posicao}</small>${saiu[a.id]!=null?`<span class="sub">↔ substituído ${saiu[a.id]}'</span>`:''}</div>`;}).join('');
+  const sup=rel.filter(r=>r.status==='R').sort((x,y)=>(+y.min||0)-(+x.min||0)||POS.indexOf(x.a.posicao)-POS.indexOf(y.a.posicao));
+  const supC=sup.map(r=>`<div class="es-sup ${+r.min>0?'in':''}"><img src="${fotoDe(r.a)}" alt=""><div><b>${esc(r.a.nome)}</b>${bdg(r.a)}<small>${POSN[r.a.posicao]||r.a.posicao}</small></div><span class="st">${+r.min>0?`↑ entrou${entrou[r.a.id]!=null?' '+entrou[r.a.id]+"'":''} · ${+r.min} min`:'banco'}</span></div>`).join('');
+  return `<div class="gr">${grHead(j,'Escalação',`PORTO VITÓRIA FC · ${(j.categoria||'').toUpperCase()} · FORMAÇÃO ${j.formacao||'4-2-3-1'}`)}
+   <div class="es-wrap"><div class="es-pitch"><svg class="ln" viewBox="0 0 105 68" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.8)" stroke-width=".35"><rect x="1" y="1" width="103" height="66"/><line x1="52.5" y1="1" x2="52.5" y2="67"/><circle cx="52.5" cy="34" r="9.15"/><rect x="1" y="13.85" width="16.5" height="40.3"/><rect x="1" y="24.85" width="5.5" height="18.3"/><rect x="87.5" y="13.85" width="16.5" height="40.3"/><rect x="98.5" y="24.85" width="5.5" height="18.3"/></g></svg>${toks}<span class="fm">Formação ${esc(j.formacao||'4-2-3-1')}</span></div>
+   <div class="es-side"><div class="gr-ph">Suplentes (${sup.length})</div><div class="es-sups">${supC||'<div class="muted vazio">Sem suplentes relacionados.</div>'}</div></div></div>${grFoot(j,'ESCALAÇÃO')}</div>`;
 }
 function modalDetalheJogo(id){
   const j=S.jogos.find(x=>x.id===id);if(!j)return;const d=dur(j);
@@ -6346,7 +6457,7 @@ document.addEventListener('click',async e=>{
   else if(act==='limpar')modalLimpar();
   else if(act==='profAdd'){S.config.profissionais=[...(S.config.profissionais||[]),{nome:'',cargo:'',ativo:true}];await Store.putConfig();render();}
   else if(act==='profDel'){S.config.profissionais=(S.config.profissionais||[]).filter((_,i)=>i!==+a.dataset.i);await Store.putConfig();render();}
-  else if(act==='pdfJogoDet'){if(a.dataset.closefirst)closeModal();gerarPDF([{t:'jogo',id}]);}
+  else if(act==='pdfJogoDet'){if(a.dataset.closefirst)closeModal();gerarPDF([{t:'jogoRel',id},{t:'jogoEsc',id}]);}
   else if(act==='pdf')gerarPDF();
   else if(act==='printRep')imprimirRel();
   else if(act==='pdfView'){const sp={'jogos-painel':{t:'painel'},dashboard:{t:'dash',rows:S.rep.dashRows||0},'min-geral':{t:'geral'},'min-jogo':{t:'jogo',id:S.jogoSel},'min-pos':{t:'pos',p:S.posSel},'min-atl':{t:'atl',id:S.atlSel}}[S.view];if(S.view==='min-pos'){const n=atletasCat().filter(a=>a.posicao===S.posSel).length;gerarPDF(dividir(n).map((_,k)=>({t:'pos',p:S.posSel,part:k})));return;}if(sp)gerarPDF([sp]);}
@@ -6494,11 +6605,11 @@ const UNI = window.UNI = {
       const active = cur === n.k || (n.sub && n.sub.some(s => s[0] === cur)) || (n.k === 'config' && cur.startsWith('config'));
       const isUp = n.up || n.k === 'config';
       return `<div class="nav-item ${isUp ? 'nav-item-up' : ''}"><button class="nav-btn ${active ? 'active' : ''}" data-nav="${n.sub ? n.sub[0][0] : n.k}" aria-label="${n.n}">${n.ic}</button>
-      <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-nav="${s[0]}" class="${cur === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-nav="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
+      <div class="nav-fly ${isUp ? 'nav-fly-up' : ''}" style="${isUp ? 'position:fixed!important;left:62px!important;top:auto!important;bottom:8px!important;' : ''}"><div class="fly-title">${n.n}</div>${n.sub ? n.sub.map(s => `<button data-nav="${s[0]}" class="${cur === s[0] ? 'active' : ''}">${s[1]}</button>`).join('') : `<button data-nav="${n.k}" class="${active ? 'active' : ''}">Abrir ${n.n.toLowerCase()}</button>`}</div></div>`;
     };
     $('#side').innerHTML = `<div class="brand"><img src="${LOGO}" alt="Porto Vitória"></div>${NAV.map(item).join('')}<div class="spacer"></div>
      ${item({ k: 'config', n: 'Configurações', ic: IC.gear, up: true, sub: [['config', 'Todos os módulos'], ...CFG_TABS] })}
-     <div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-nav-act="theme">Alternar claro / escuro</button></div></div>`;
+     <div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="theme" aria-label="Alternar tema claro/escuro">${IC.moon}</button><div class="nav-fly nav-fly-up" style="position:fixed!important;left:62px!important;top:auto!important;bottom:8px!important;"><div class="fly-title">Tema</div><button data-nav-act="theme">Alternar claro / escuro</button></div></div>`;
   },
   afterMinRender() {
     const v = MIN.S.view; const key = v === 'config' ? 'config-min' : (MIN_BACK[v] || 'm-' + v);
@@ -6523,18 +6634,7 @@ window.document.addEventListener('click', e => {
   const t = e.target.closest('[data-nav-act="theme"]'); if (t) { e.stopPropagation(); const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); const nv = cur === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = nv; try { localStorage.setItem('pv_theme', nv); } catch (x) { } UNI.rerender(); }
 }, true);
 
-// Previne que submenus laterais (flyout) ultrapassem a borda inferior da janela
-window.document.addEventListener('mouseover', e => {
-  const item = e.target.closest && e.target.closest('.nav-item');
-  if (!item) return;
-  const fly = item.querySelector('.nav-fly');
-  if (!fly) return;
-  const rect = fly.getBoundingClientRect();
-  if (rect.bottom > window.innerHeight - 6) {
-    fly.style.top = 'auto';
-    fly.style.bottom = '0';
-  }
-}, { passive: true });
+
 
 /* ---------- configurações divididas por módulo ---------- */
 const CFG_INFO = {
@@ -6641,7 +6741,7 @@ window.addEventListener('resize', () => requestAnimationFrame(rbFit));
 })();
 // botão "Sair" no menu lateral
 const _rsLogin = UNI.renderSide;
-UNI.renderSide = function () { _rsLogin(); const side = document.getElementById('side'); if (!side || side.querySelector('[data-nav-act="logout"]')) return; const th = side.querySelector('[data-nav-act="theme"]'); const item = th ? th.closest('.nav-item') : null; const u = window.usuarioAtualPV && usuarioAtualPV(); const html = `<div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="logout" aria-label="Sair">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}</button><div class="nav-fly nav-fly-up" style="top:auto!important;bottom:10px!important;"><div class="fly-title">${u ? esc(u.nome) : 'Conta'}</div><button data-nav-act="logout">Sair do sistema</button></div></div>`; if (item) item.insertAdjacentHTML('afterend', html); else side.insertAdjacentHTML('beforeend', html); };
+UNI.renderSide = function () { _rsLogin(); const side = document.getElementById('side'); if (!side || side.querySelector('[data-nav-act="logout"]')) return; const th = side.querySelector('[data-nav-act="theme"]'); const item = th ? th.closest('.nav-item') : null; const u = window.usuarioAtualPV && usuarioAtualPV(); const html = `<div class="nav-item nav-item-up"><button class="nav-btn" data-nav-act="logout" aria-label="Sair">${I('<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>')}</button><div class="nav-fly nav-fly-up" style="position:fixed!important;left:62px!important;top:auto!important;bottom:8px!important;"><div class="fly-title">${u ? esc(u.nome) : 'Conta'}</div><button data-nav-act="logout">Sair do sistema</button></div></div>`; if (item) item.insertAdjacentHTML('afterend', html); else side.insertAdjacentHTML('beforeend', html); };
 renderSide = UNI.renderSide;
 document.addEventListener('click', e => { if (e.target.closest('[data-nav-act="logout"]')) { e.stopPropagation(); confirmar('Sair do sistema?', () => sairPV()); } }, true);
 // gestão de usuários em Configurações → Geral

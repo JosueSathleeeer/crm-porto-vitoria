@@ -8,7 +8,8 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "backup": "node server/backup-cli.js",
-    "reset-senha-admin": "node server/reset-admin.js"
+    "reset-senha-admin": "node server/reset-admin.js",
+    "zerar": "node server/zerar-dados.js"
   },
   "engines": { "node": ">=18" },
   "dependencies": {

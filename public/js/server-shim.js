@@ -1,6 +1,14 @@
 // Liga o sistema (interface) ao banco de dados do servidor.
 // O sistema usa a mesma API de banco (collection/doc/set/delete/onSnapshot); aqui ela é atendida pela API REST + tempo real (SSE).
 window.PV_SERVER = true;
+try {
+  if (localStorage.getItem('pv_zerado_v1') !== '1') {
+    localStorage.removeItem('pv_dm_data');
+    localStorage.removeItem('pv_data');
+    localStorage.removeItem('pv_rep');
+    localStorage.setItem('pv_zerado_v1', '1');
+  }
+} catch (e) { }
 (function () {
   const cache = {};       // { colecao: Map(id -> objeto) }
   const carregando = {};  // promessas de carga por coleção
